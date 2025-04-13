@@ -1,5 +1,3 @@
-console.log(" we good ")
-
 const clientId = process.env.REACT_APP_CLIENT_ID as string;
 let isAuthenticated = false;
 let accessTokenGlobal: string | null = null;
@@ -20,7 +18,6 @@ export async function checkTokenValidity(): Promise<boolean> {
         });
 
         if (result.ok) {
-            console.log(" we good ")
             accessTokenGlobal = token;
             isAuthenticated = true;
             return true;
