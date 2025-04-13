@@ -36,7 +36,7 @@ import QueueMusicIcon from '@mui/icons-material/QueueMusic';
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 import DeleteIcon from '@mui/icons-material/Delete';
 
-import { motion, AnimatePresence } from  'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 
 import { doc, setDoc, getDoc, updateDoc, deleteDoc, collection } from 'firebase/firestore';
 import { db } from '../firebase/config';

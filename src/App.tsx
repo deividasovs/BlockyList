@@ -50,7 +50,7 @@ function MainPage() {
   const [userId, setUserId] = useState<string | null>(null);
   const [userProfileImage, setUserProfileImage] = useState<any | null>(null);
   const [userDisplayName, setUserDisplayName] = useState<string | null>(null);
-  const [isCreating, setIsCreating] = useState(false);
+  const [creatingPlaylistId, setCreatingPlaylistId] = useState<string | null>(null);
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: '',
@@ -137,7 +137,7 @@ function MainPage() {
 
   const createPlaylistOnSpotify = async (playlist: Playlist) => {
     try {
-      setIsCreating(true);
+      setCreatingPlaylistId(playlist.id);
       const accessToken = localStorage.getItem('spotify_access_token');
       if (!accessToken) throw new Error('No access token found');
 
@@ -164,6 +164,8 @@ function MainPage() {
 
       // Process each block and add items
       for (const block of playlist.blocks) {
+        console.log('[Block Processing] Inspecting block:', JSON.stringify(block, null, 2));
+
         if (block.type === 'podcast' && block.podcastEpisode) {
           // Add podcast episode
           await fetch(`https://api.spotify.com/v1/playlists/${playlistData.id}/tracks`, {
@@ -179,6 +181,8 @@ function MainPage() {
         } else if (block.type === 'songs' && block.playlist) {
           let tracksData;
 
+          console.log(`[Songs Block] Processing source: ${block.playlist.id}`);
+
           if (block.playlist.id === 'liked_songs') {
             // Fetch tracks from Liked Songs
             const likedTracksResponse = await fetch('https://api.spotify.com/v1/me/tracks?limit=50', {
@@ -193,6 +197,7 @@ function MainPage() {
             tracksData.items = tracksData.items.map((item: any) => ({
               track: item.track
             }));
+            console.log('[Songs Block] Raw Liked Songs data:', tracksData);
           } else {
             // Fetch tracks from regular playlist
             const tracksResponse = await fetch(
@@ -207,18 +212,22 @@ function MainPage() {
             }
 
             tracksData = await tracksResponse.json();
+            console.log(`[Songs Block] Raw Playlist (${block.playlist.id}) data:`, tracksData);
           }
 
           const validTracks = tracksData.items
             .filter((item: any) => item.track && !item.track.is_local)
             .map((item: any) => item.track.uri);
+          console.log('[Songs Block] Valid track URIs:', validTracks);
 
           const numTracks = Math.floor(Math.random() *
             (block.songRange.max - block.songRange.min + 1)) + block.songRange.min;
+          console.log(`[Songs Block] Number of tracks to select: ${numTracks}`);
 
           const selectedTracks = validTracks
             .sort(() => Math.random() - 0.5)
             .slice(0, Math.min(numTracks, validTracks.length));
+          console.log('[Songs Block] Selected track URIs to add:', selectedTracks);
 
           if (selectedTracks.length > 0) {
             await fetch(`https://api.spotify.com/v1/playlists/${playlistData.id}/tracks`, {
@@ -253,6 +262,57 @@ function MainPage() {
 
             });
           }
+        } else if (block.type === 'recommended-songs') {
+          console.log('[Recommended Songs Block - Using Top Tracks] Processing...');
+
+          // 1. Get user's top tracks
+          const topTracksResponse = await fetch('https://api.spotify.com/v1/me/top/tracks?limit=50&time_range=short_term', {
+            headers: { 'Authorization': `Bearer ${accessToken}` }
+          });
+          if (!topTracksResponse.ok) {
+            console.error('[Recommended Songs Block - Using Top Tracks] Failed to fetch top tracks');
+            continue; // Skip this block if fetching top tracks fails
+          }
+          const topTracksData = await topTracksResponse.json();
+
+          const topTrackUris = topTracksData.items
+            .filter((item: any) => item && !item.is_local) // Ensure track exists and is not local
+            .map((item: any) => item.uri);
+
+          console.log(`[Recommended Songs Block - Using Top Tracks] Fetched ${topTrackUris.length} top track URIs:`, topTrackUris);
+
+          if (topTrackUris.length === 0) {
+            console.warn('[Recommended Songs Block - Using Top Tracks] No valid top tracks found, skipping block.');
+            continue; // Skip if no seeds
+          }
+
+          // 2. Select random number of tracks within range from the fetched top tracks
+          const numTracksToSelect = Math.floor(Math.random() *
+            (block.songRange.max - block.songRange.min + 1)) + block.songRange.min;
+
+          // Ensure we don't try to select more than we have
+          const finalNumTracks = Math.min(numTracksToSelect, topTrackUris.length);
+
+          // Shuffle and slice
+          const selectedTracks = topTrackUris
+            .sort(() => Math.random() - 0.5)
+            .slice(0, finalNumTracks);
+
+          console.log(`[Recommended Songs Block - Using Top Tracks] Selected ${selectedTracks.length} tracks to add:`, selectedTracks);
+
+          // 3. Add selected tracks to the playlist
+          if (selectedTracks.length > 0) {
+            await fetch(`https://api.spotify.com/v1/playlists/${playlistData.id}/tracks`, {
+              method: 'POST',
+              headers: {
+                'Authorization': `Bearer ${accessToken}`,
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                uris: selectedTracks
+              })
+            });
+          }
         }
       }
 
@@ -273,7 +333,7 @@ function MainPage() {
         severity: 'error'
       });
     } finally {
-      setIsCreating(false);
+      setCreatingPlaylistId(null);
     }
   };
 
@@ -300,7 +360,7 @@ function MainPage() {
       <AppBar position="static" sx={{ bgcolor: '#121212', mb: 2 }}>
         <Toolbar>
           <Typography variant="h6" component="div" sx={{ flexGrow: 1, color: '#1DB954', fontWeight: 'bold' }}>
-            Spotify Daily Podcasts
+            BlockyList Home
           </Typography>
 
         </Toolbar>
@@ -338,7 +398,8 @@ function MainPage() {
                     Welcome, {userDisplayName}
                   </Typography>
                   <Typography variant="body1" sx={{ color: '#B3B3B3' }}>
-                    Create custom podcast and music playlists that update automatically
+                    Template your Spotify playlists using BlockyLists.
+                    Instantly generate a fresh Spotify playlist on demand—featuring a mix of your favorite music and your latest podcast episodes.
                   </Typography>
                 </Box>
               </Box>
@@ -530,16 +591,25 @@ function MainPage() {
                                       e.stopPropagation();
                                       createPlaylistOnSpotify(playlist);
                                     }}
-                                    disabled={isCreating}
+                                    disabled={creatingPlaylistId !== null}
                                     sx={{
                                       color: '#FFFFFF',
                                       bgcolor: '#1DB954',
                                       '&:hover': {
                                         bgcolor: '#1ed760',
-                                      }
+                                      },
+                                      width: 32,
+                                      height: 32,
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      justifyContent: 'center'
                                     }}
                                   >
-                                    <PlaylistAddIcon fontSize="small" />
+                                    {creatingPlaylistId === playlist.id ? (
+                                      <CircularProgress size={20} sx={{ color: '#FFFFFF' }} />
+                                    ) : (
+                                      <PlaylistAddIcon fontSize="small" />
+                                    )}
                                   </IconButton>
                                 </Tooltip>
                               </Box>
