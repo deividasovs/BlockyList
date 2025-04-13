@@ -1124,7 +1124,7 @@ export function CreatePlaylistBlocks({ mode }: CreatePlaylistBlocksProps) {
                                             bgcolor: '#1ed760',
                                         },
                                         borderRadius: 2,
-                                        py: 1.5,
+                                        py: 1,
                                         height: '100%',
                                         display: 'flex',
                                         flexDirection: 'column',
@@ -1132,8 +1132,8 @@ export function CreatePlaylistBlocks({ mode }: CreatePlaylistBlocksProps) {
                                         justifyContent: 'center'
                                     }}
                                 >
-                                    <Box sx={{ mb: 1 }}>
-                                        <PodcastsIcon sx={{ fontSize: 32 }} />
+                                    <Box sx={{ mb: 0.5 }}>
+                                        <PodcastsIcon sx={{ fontSize: 28 }} />
                                     </Box>
                                     Add Podcast Episode
                                 </Button>
@@ -1151,7 +1151,7 @@ export function CreatePlaylistBlocks({ mode }: CreatePlaylistBlocksProps) {
                                             bgcolor: '#1ed760',
                                         },
                                         borderRadius: 2,
-                                        py: 1.5,
+                                        py: 1,
                                         height: '100%',
                                         display: 'flex',
                                         flexDirection: 'column',
@@ -1159,8 +1159,8 @@ export function CreatePlaylistBlocks({ mode }: CreatePlaylistBlocksProps) {
                                         justifyContent: 'center'
                                     }}
                                 >
-                                    <Box sx={{ mb: 1 }}>
-                                        <NewReleasesIcon sx={{ fontSize: 32 }} />
+                                    <Box sx={{ mb: 0.5 }}>
+                                        <NewReleasesIcon sx={{ fontSize: 28 }} />
                                     </Box>
                                     Latest From Show
                                 </Button>
@@ -1178,7 +1178,7 @@ export function CreatePlaylistBlocks({ mode }: CreatePlaylistBlocksProps) {
                                             bgcolor: '#1ed760',
                                         },
                                         borderRadius: 2,
-                                        py: 1.5,
+                                        py: 1,
                                         height: '100%',
                                         display: 'flex',
                                         flexDirection: 'column',
@@ -1186,8 +1186,8 @@ export function CreatePlaylistBlocks({ mode }: CreatePlaylistBlocksProps) {
                                         justifyContent: 'center'
                                     }}
                                 >
-                                    <Box sx={{ mb: 1 }}>
-                                        <QueueMusicIcon sx={{ fontSize: 32 }} />
+                                    <Box sx={{ mb: 0.5 }}>
+                                        <QueueMusicIcon sx={{ fontSize: 28 }} />
                                     </Box>
                                     Add Songs
                                 </Button>
@@ -1205,7 +1205,7 @@ export function CreatePlaylistBlocks({ mode }: CreatePlaylistBlocksProps) {
                                             bgcolor: '#1ed760',
                                         },
                                         borderRadius: 2,
-                                        py: 1.5,
+                                        py: 1,
                                         height: '100%',
                                         display: 'flex',
                                         flexDirection: 'column',
@@ -1213,8 +1213,8 @@ export function CreatePlaylistBlocks({ mode }: CreatePlaylistBlocksProps) {
                                         justifyContent: 'center'
                                     }}
                                 >
-                                    <Box sx={{ mb: 1 }}>
-                                        <RecommendIcon sx={{ fontSize: 32 }} />
+                                    <Box sx={{ mb: 0.5 }}>
+                                        <RecommendIcon sx={{ fontSize: 28 }} />
                                     </Box>
                                     Recommended Songs
                                 </Button>
@@ -1410,9 +1410,9 @@ export function CreatePlaylistBlocks({ mode }: CreatePlaylistBlocksProps) {
                                 color: 'rgba(255, 255, 255, 0.7)',
                             },
                             borderRadius: 2,
-                            py: 1.5,
-                            px: 4,
-                            fontSize: '1.1rem'
+                            py: 1.2,
+                            px: 3,
+                            fontSize: '1rem',
                         }}
                     >
                         {isCreating ? (
