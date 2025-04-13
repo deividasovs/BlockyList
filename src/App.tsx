@@ -106,7 +106,6 @@ function MainPage() {
       });
     }
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const fetchPlaylistsForUser = async (profileId: string) => {
