@@ -271,7 +271,7 @@ function MainPage() {
           });
           if (!topTracksResponse.ok) {
             console.error('[Recommended Songs Block - Using Top Tracks] Failed to fetch top tracks');
-            continue; // Skip this block if fetching top tracks fails
+            continue; // Skip this block if fetching seeds fails
           }
           const topTracksData = await topTracksResponse.json();
 
@@ -504,7 +504,6 @@ function MainPage() {
                               minHeight: '180px',
                               display: 'flex',
                               flexDirection: 'column',
-                              cursor: 'pointer',
                               boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
                               position: 'relative',
                               overflow: 'hidden',
@@ -518,14 +517,35 @@ function MainPage() {
                                 background: '#1DB954',
                               }
                             }}
-                            onClick={() => handlePlaylistClick(playlist.id)}
                           >
+                            <Box sx={{ position: 'absolute', top: 8, right: 8, zIndex: 1 }}>
+                              <Tooltip title="Edit Blockylist">
+                                <IconButton
+                                  size="small"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handlePlaylistClick(playlist.id);
+                                  }}
+                                  sx={{
+                                    color: '#FFFFFF',
+                                    bgcolor: 'rgba(255,255,255,0.1)',
+                                    '&:hover': {
+                                      bgcolor: 'rgba(255,255,255,0.2)',
+                                    }
+                                  }}
+                                >
+                                  <EditIcon fontSize="small" />
+                                </IconButton>
+                              </Tooltip>
+                            </Box>
+
                             <Typography
                               variant="h6"
                               sx={{
                                 mb: 1,
                                 fontWeight: 'bold',
-                                color: '#FFFFFF'
+                                color: '#FFFFFF',
+                                pr: 5
                               }}
                             >
                               {playlist.name}
@@ -566,52 +586,30 @@ function MainPage() {
                               </Typography>
 
                               <Box sx={{ display: 'flex', gap: 1 }}>
-                                <Tooltip title="Edit Blockylist">
-                                  <IconButton
-                                    size="small"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      handlePlaylistClick(playlist.id);
-                                    }}
-                                    sx={{
-                                      color: '#FFFFFF',
-                                      bgcolor: 'rgba(255,255,255,0.1)',
-                                      '&:hover': {
-                                        bgcolor: 'rgba(255,255,255,0.2)',
-                                      }
-                                    }}
-                                  >
-                                    <EditIcon fontSize="small" />
-                                  </IconButton>
-                                </Tooltip>
-                                <Tooltip title="Create playlist on Spotify">
-                                  <IconButton
-                                    size="small"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      createPlaylistOnSpotify(playlist);
-                                    }}
-                                    disabled={creatingPlaylistId !== null}
-                                    sx={{
-                                      color: '#FFFFFF',
-                                      bgcolor: '#1DB954',
-                                      '&:hover': {
-                                        bgcolor: '#1ed760',
-                                      },
-                                      width: 32,
-                                      height: 32,
-                                      display: 'flex',
-                                      alignItems: 'center',
-                                      justifyContent: 'center'
-                                    }}
-                                  >
-                                    {creatingPlaylistId === playlist.id ? (
-                                      <CircularProgress size={20} sx={{ color: '#FFFFFF' }} />
-                                    ) : (
-                                      <PlaylistAddIcon fontSize="small" />
-                                    )}
-                                  </IconButton>
-                                </Tooltip>
+
+                                <Button
+                                  variant="contained"
+                                  size="small"
+                                  startIcon={creatingPlaylistId === playlist.id ? <CircularProgress size={16} sx={{ color: '#FFFFFF' }} /> : <PlaylistAddIcon fontSize="small" />}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    createPlaylistOnSpotify(playlist);
+                                  }}
+                                  disabled={creatingPlaylistId !== null}
+                                  sx={{
+                                    color: '#FFFFFF',
+                                    bgcolor: '#1DB954',
+                                    '&:hover': {
+                                      bgcolor: '#1ed760',
+                                    },
+                                    textTransform: 'none',
+                                    fontSize: '0.8rem',
+                                    py: 0.5,
+                                    px: 1.5
+                                  }}
+                                >
+                                  {creatingPlaylistId !== playlist.id && 'Create Playlist on Spotify'}
+                                </Button>
                               </Box>
                             </Box>
                           </Paper>

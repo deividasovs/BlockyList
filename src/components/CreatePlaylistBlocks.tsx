@@ -286,8 +286,8 @@ export function CreatePlaylistBlocks({ mode }: CreatePlaylistBlocksProps) {
         setBlocks([...blocks, {
             id: `block-${Date.now()}`,
             type: 'podcast',
-            title: 'New Podcast Block',
-            description: 'Select a podcast episode'
+            title: 'Podcast Episode',
+            description: 'Click to select an episode'
         }]);
         setSnackbar({
             open: true,
@@ -300,8 +300,8 @@ export function CreatePlaylistBlocks({ mode }: CreatePlaylistBlocksProps) {
         setBlocks([...blocks, {
             id: `block-${Date.now()}`,
             type: 'latest-podcast',
-            title: 'New Latest Podcast Block',
-            description: 'Select a podcast show'
+            title: 'Latest From Show',
+            description: 'Click to select a show'
         }]);
         setSnackbar({
             open: true,
@@ -314,8 +314,8 @@ export function CreatePlaylistBlocks({ mode }: CreatePlaylistBlocksProps) {
         setBlocks([...blocks, {
             id: `block-${Date.now()}`,
             type: 'songs',
-            title: 'New Songs Block',
-            description: 'Select a playlist',
+            title: 'Songs From Playlist',
+            description: 'Click to select a playlist',
             songRange: { min: 4, max: 7 }
         }]);
         setSnackbar({
@@ -403,11 +403,27 @@ export function CreatePlaylistBlocks({ mode }: CreatePlaylistBlocksProps) {
             const accessToken = localStorage.getItem('spotify_access_token');
             if (!accessToken) throw new Error('No access token found');
 
+            // Fetch liked songs count first
+            let likedSongsCount = 0;
+            try {
+                const likedSongsResponse = await fetch('https://api.spotify.com/v1/me/tracks?limit=1', {
+                    headers: { 'Authorization': `Bearer ${accessToken}` }
+                });
+                if (likedSongsResponse.ok) {
+                    const likedSongsData = await likedSongsResponse.json();
+                    likedSongsCount = likedSongsData.total || 0;
+                } else {
+                    console.warn('Failed to fetch liked songs count');
+                }
+            } catch (err) {
+                console.warn('Error fetching liked songs count:', err);
+            }
+
             let allPlaylists: Playlist[] = [{
                 id: 'liked_songs',
                 name: 'Liked Songs',
                 imageUrl: 'https://misc.scdn.co/liked-songs/liked-songs-640.png',
-                trackCount: 0 // We don't know the track count for liked songs here
+                trackCount: likedSongsCount // Use the fetched count here
             }];
 
             // Fetch user playlists
@@ -692,11 +708,28 @@ export function CreatePlaylistBlocks({ mode }: CreatePlaylistBlocksProps) {
         }
     };
 
+    // Check if any block is incomplete
+    const isAnyBlockIncomplete = blocks.some(block =>
+        (block.type === 'podcast' && !block.podcastEpisode) ||
+        (block.type === 'latest-podcast' && !block.podcastShow) ||
+        (block.type === 'songs' && !block.playlist)
+    );
+
     const createPlaylist = async () => {
         if (!playlistName.trim()) {
             setSnackbar({
                 open: true,
                 message: 'Please enter a Blockylist name',
+                severity: 'error'
+            });
+            return;
+        }
+
+        // Add check for incomplete blocks
+        if (isAnyBlockIncomplete) {
+            setSnackbar({
+                open: true,
+                message: 'Please complete all blocks before saving.',
                 severity: 'error'
             });
             return;
@@ -813,6 +846,16 @@ export function CreatePlaylistBlocks({ mode }: CreatePlaylistBlocksProps) {
             setSnackbar({
                 open: true,
                 message: 'Please enter a Blockylist name',
+                severity: 'error'
+            });
+            return;
+        }
+
+        // Add check for incomplete blocks
+        if (isAnyBlockIncomplete) {
+            setSnackbar({
+                open: true,
+                message: 'Please complete all blocks before saving.',
                 severity: 'error'
             });
             return;
@@ -1229,13 +1272,13 @@ export function CreatePlaylistBlocks({ mode }: CreatePlaylistBlocksProps) {
                                             bgcolor: '#282828',
                                             cursor: 'pointer',
                                             transition: 'all 0.2s ease-in-out',
+                                            borderRadius: 2,
+                                            position: 'relative',
                                             '&:hover': {
                                                 bgcolor: '#3E3E3E',
                                                 transform: 'translateY(-4px)',
                                                 boxShadow: '0 6px 10px rgba(0, 0, 0, 0.3)'
                                             },
-                                            borderRadius: 2,
-                                            position: 'relative'
                                         }}
                                     >
                                         <Stack direction="row" alignItems="center" spacing={2}>
@@ -1254,7 +1297,17 @@ export function CreatePlaylistBlocks({ mode }: CreatePlaylistBlocksProps) {
                                                 <Typography variant="subtitle1" sx={{ color: '#FFFFFF', fontWeight: 'bold' }}>
                                                     {block.title}
                                                 </Typography>
-                                                <Typography variant="body2" sx={{ color: '#B3B3B3' }}>
+                                                <Typography
+                                                    variant="body2"
+                                                    sx={{
+                                                        color:
+                                                            (block.type === 'podcast' && !block.podcastEpisode) ||
+                                                                (block.type === 'latest-podcast' && !block.podcastShow) ||
+                                                                (block.type === 'songs' && !block.playlist)
+                                                                ? theme.palette.error.light
+                                                                : '#B3B3B3'
+                                                    }}
+                                                >
                                                     {block.description}
                                                 </Typography>
                                                 {(block.type === 'songs' || block.type === 'recommended-songs') && block.songRange && (
@@ -1267,51 +1320,53 @@ export function CreatePlaylistBlocks({ mode }: CreatePlaylistBlocksProps) {
                                                             gap: 1
                                                         }}
                                                     >
-                                                        <Typography variant="body2" sx={{ color: '#FFFFFF', mb: 1 }}>
-                                                            Number of songs:
-                                                        </Typography>
-                                                        <Stack
-                                                            direction="row"
-                                                            spacing={1}
-                                                            sx={{
-                                                                flexWrap: 'wrap',
-                                                                gap: 1
-                                                            }}
-                                                        >
-                                                            {songRangeOptions.map((option) => (
-                                                                <Chip
-                                                                    key={option.label}
-                                                                    label={option.label}
-                                                                    onClick={() => handleSongRangeSelect(
-                                                                        block.id,
-                                                                        option.min,
-                                                                        option.max
-                                                                    )}
-                                                                    color={
-                                                                        block.songRange?.min === option.min &&
-                                                                            block.songRange?.max === option.max
-                                                                            ? "primary"
-                                                                            : "default"
-                                                                    }
-                                                                    sx={{
-                                                                        bgcolor: block.songRange?.min === option.min &&
-                                                                            block.songRange?.max === option.max
-                                                                            ? '#1DB954'
-                                                                            : 'rgba(255,255,255,0.1)',
-                                                                        color: block.songRange?.min === option.min &&
-                                                                            block.songRange?.max === option.max
-                                                                            ? '#FFFFFF'
-                                                                            : '#FFFFFF',
-                                                                        '&:hover': {
+                                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                                                            <Typography variant="body2" sx={{ color: '#FFFFFF', flexShrink: 0 }}>
+                                                                Number of songs:
+                                                            </Typography>
+                                                            <Stack
+                                                                direction="row"
+                                                                spacing={1}
+                                                                sx={{
+                                                                    flexWrap: 'wrap',
+                                                                    gap: 1
+                                                                }}
+                                                            >
+                                                                {songRangeOptions.map((option) => (
+                                                                    <Chip
+                                                                        key={option.label}
+                                                                        label={option.label}
+                                                                        onClick={() => handleSongRangeSelect(
+                                                                            block.id,
+                                                                            option.min,
+                                                                            option.max
+                                                                        )}
+                                                                        color={
+                                                                            block.songRange?.min === option.min &&
+                                                                                block.songRange?.max === option.max
+                                                                                ? "primary"
+                                                                                : "default"
+                                                                        }
+                                                                        sx={{
                                                                             bgcolor: block.songRange?.min === option.min &&
                                                                                 block.songRange?.max === option.max
-                                                                                ? '#1ed760'
-                                                                                : 'rgba(255,255,255,0.2)',
-                                                                        }
-                                                                    }}
-                                                                />
-                                                            ))}
-                                                        </Stack>
+                                                                                ? '#1DB954'
+                                                                                : 'rgba(255,255,255,0.1)',
+                                                                            color: block.songRange?.min === option.min &&
+                                                                                block.songRange?.max === option.max
+                                                                                ? '#FFFFFF'
+                                                                                : '#FFFFFF',
+                                                                            '&:hover': {
+                                                                                bgcolor: block.songRange?.min === option.min &&
+                                                                                    block.songRange?.max === option.max
+                                                                                    ? '#1ed760'
+                                                                                    : 'rgba(255,255,255,0.2)',
+                                                                            }
+                                                                        }}
+                                                                    />
+                                                                ))}
+                                                            </Stack>
+                                                        </Box>
                                                     </Box>
                                                 )}
                                             </Box>
@@ -1342,7 +1397,7 @@ export function CreatePlaylistBlocks({ mode }: CreatePlaylistBlocksProps) {
                     <Button
                         variant="contained"
                         onClick={mode === 'create' ? createPlaylist : handleUpdate}
-                        disabled={isCreating}
+                        disabled={isCreating || (mode === 'create' && blocks.length === 0) || isAnyBlockIncomplete}
                         startIcon={<SaveIcon />}
                         sx={{
                             bgcolor: '#1DB954',
@@ -1416,7 +1471,7 @@ export function CreatePlaylistBlocks({ mode }: CreatePlaylistBlocksProps) {
                             </Typography>
                             <Grid container spacing={2}>
                                 {recentPodcasts.map((podcast) => (
-                                    <Grid item xs={12} sm={6} md={4} key={podcast.id}>
+                                    <Grid item xs={6} sm={4} md={3} key={podcast.id}>
                                         <Card
                                             onClick={() => handlePodcastSelect(podcast)}
                                             sx={{
@@ -1437,10 +1492,10 @@ export function CreatePlaylistBlocks({ mode }: CreatePlaylistBlocksProps) {
                                                 component="img"
                                                 image={podcast.imageUrl || ''}
                                                 alt={podcast.title}
-                                                sx={{ height: 140 }}
+                                                sx={{ height: 120, objectFit: 'cover', aspectRatio: '1 / 1' }}
                                             />
-                                            <CardContent sx={{ flexGrow: 1 }}>
-                                                <Typography variant="subtitle1" sx={{ color: '#FFFFFF', fontWeight: 'bold', mb: 1 }}>
+                                            <CardContent sx={{ flexGrow: 1, p: 1.5 }}>
+                                                <Typography variant="subtitle1" sx={{ color: '#FFFFFF', fontWeight: 'bold', mb: 0.5, fontSize: '0.9rem' }}>
                                                     {podcast.title}
                                                 </Typography>
                                                 <Typography variant="body2" sx={{ color: '#B3B3B3' }}>
@@ -1504,7 +1559,7 @@ export function CreatePlaylistBlocks({ mode }: CreatePlaylistBlocksProps) {
                             </Typography>
                             <Grid container spacing={2}>
                                 {playlists.map((playlist) => (
-                                    <Grid item xs={12} sm={6} md={4} key={playlist.id}>
+                                    <Grid item xs={6} sm={4} md={3} key={playlist.id}>
                                         <Card
                                             onClick={() => handlePlaylistSelect(playlist)}
                                             sx={{
@@ -1525,10 +1580,10 @@ export function CreatePlaylistBlocks({ mode }: CreatePlaylistBlocksProps) {
                                                 component="img"
                                                 image={playlist.imageUrl || ''}
                                                 alt={playlist.name}
-                                                sx={{ height: 140 }}
+                                                sx={{ height: 120, objectFit: 'cover', aspectRatio: '1 / 1' }}
                                             />
-                                            <CardContent sx={{ flexGrow: 1 }}>
-                                                <Typography variant="subtitle1" sx={{ color: '#FFFFFF', fontWeight: 'bold', mb: 1 }}>
+                                            <CardContent sx={{ flexGrow: 1, p: 1.5 }}>
+                                                <Typography variant="subtitle1" sx={{ color: '#FFFFFF', fontWeight: 'bold', mb: 0.5, fontSize: '0.9rem' }}>
                                                     {playlist.name}
                                                 </Typography>
                                                 <Typography variant="caption" sx={{ color: '#1DB954', mt: 1, display: 'block' }}>
@@ -1622,7 +1677,7 @@ export function CreatePlaylistBlocks({ mode }: CreatePlaylistBlocksProps) {
                                     </Typography>
                                     <Grid container spacing={2}>
                                         {searchResults.map((show) => (
-                                            <Grid item xs={12} sm={6} md={4} key={show.id}>
+                                            <Grid item xs={6} sm={4} md={3} key={show.id}>
                                                 <Card
                                                     onClick={() => handleShowSelect(show)}
                                                     sx={{
@@ -1643,10 +1698,10 @@ export function CreatePlaylistBlocks({ mode }: CreatePlaylistBlocksProps) {
                                                         component="img"
                                                         image={show.imageUrl || ''}
                                                         alt={show.name}
-                                                        sx={{ height: 140 }}
+                                                        sx={{ height: 120, objectFit: 'cover', aspectRatio: '1 / 1' }}
                                                     />
-                                                    <CardContent sx={{ flexGrow: 1 }}>
-                                                        <Typography variant="subtitle1" sx={{ color: '#FFFFFF', fontWeight: 'bold' }}>
+                                                    <CardContent sx={{ flexGrow: 1, p: 1.5 }}>
+                                                        <Typography variant="subtitle1" sx={{ color: '#FFFFFF', fontWeight: 'bold', fontSize: '0.9rem' }}>
                                                             {show.name}
                                                         </Typography>
                                                     </CardContent>
@@ -1662,7 +1717,7 @@ export function CreatePlaylistBlocks({ mode }: CreatePlaylistBlocksProps) {
                                     </Typography>
                                     <Grid container spacing={2}>
                                         {shows.map((show) => (
-                                            <Grid item xs={12} sm={6} md={4} key={show.id}>
+                                            <Grid item xs={6} sm={4} md={3} key={show.id}>
                                                 <Card
                                                     onClick={() => handleShowSelect(show)}
                                                     sx={{
@@ -1683,10 +1738,10 @@ export function CreatePlaylistBlocks({ mode }: CreatePlaylistBlocksProps) {
                                                         component="img"
                                                         image={show.imageUrl || ''}
                                                         alt={show.name}
-                                                        sx={{ height: 140 }}
+                                                        sx={{ height: 120, objectFit: 'cover', aspectRatio: '1 / 1' }}
                                                     />
-                                                    <CardContent sx={{ flexGrow: 1 }}>
-                                                        <Typography variant="subtitle1" sx={{ color: '#FFFFFF', fontWeight: 'bold' }}>
+                                                    <CardContent sx={{ flexGrow: 1, p: 1.5 }}>
+                                                        <Typography variant="subtitle1" sx={{ color: '#FFFFFF', fontWeight: 'bold', fontSize: '0.9rem' }}>
                                                             {show.name}
                                                         </Typography>
                                                     </CardContent>
