@@ -571,7 +571,7 @@ function MainPage() {
 
 function App() {
   return (
-    <Router>
+    <Router basename={process.env.PUBLIC_URL}>
       <Routes>
         <Route path="/" element={<MainPage />} />
         <Route path="/create-playlist-blocks" element={<CreatePlaylistBlocks mode="create" />} />

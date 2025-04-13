@@ -7,6 +7,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#000000" />
   <meta name="description" content="Web site created using create-react-app" />
+  <script>
+    // If this page is loaded via the 404.html redirect, restore the original path.
+    (function () {
+      const redirect = sessionStorage.redirect;
+      delete sessionStorage.redirect;
+      if (redirect && redirect !== window.location.href) {
+        // Use replaceState so the browser history is not polluted
+        history.replaceState(null, null, redirect);
+      }
+    })();
+  </script>
 
   <!--
       manifest.json provides metadata used when your web app is installed on a
