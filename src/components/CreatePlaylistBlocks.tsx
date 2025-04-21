@@ -353,15 +353,22 @@ export function CreatePlaylistBlocks({ mode }: CreatePlaylistBlocksProps) {
         e.preventDefault();
         if (draggedItem === null || index === draggedOverIndex) return;
 
-        setDraggedOverIndex(index);
+        const cardElement = (e.target as HTMLElement).closest('[data-draggable-index]') as HTMLElement;
+        if (cardElement) {
+            const targetRect = cardElement.getBoundingClientRect();
+            const targetCenter = targetRect.top + targetRect.height / 2;
+            const clientY = 'touches' in e ? e.touches[0].clientY : (e as React.DragEvent).clientY;
 
-        if (draggedItem !== index) {
-            const items = Array.from(blocks);
-            const [reorderedItem] = items.splice(draggedItem, 1);
-            items.splice(index, 0, reorderedItem);
-
-            setBlocks(items);
-            setDraggedItem(index);
+            // Only swap if we've crossed the center point of the target
+            if ((index > draggedItem && clientY > targetCenter) ||
+                (index < draggedItem && clientY < targetCenter)) {
+                const items = Array.from(blocks);
+                const [reorderedItem] = items.splice(draggedItem, 1);
+                items.splice(index, 0, reorderedItem);
+                setBlocks(items);
+                setDraggedItem(index);
+                setDraggedOverIndex(index);
+            }
         }
     };
 
@@ -371,35 +378,43 @@ export function CreatePlaylistBlocks({ mode }: CreatePlaylistBlocksProps) {
     };
 
     const handleTouchStart = (e: React.TouchEvent, index: number) => {
-        const target = e.target as HTMLElement;
-        if (target.closest('[data-drag-handle="true"]')) {
-            e.preventDefault();
-            handleDragStart(e, index);
-        }
+        setDraggedItem(index);
+        setDraggedOverIndex(index);
     };
 
     const handleTouchMove = (e: React.TouchEvent) => {
         if (draggedItem === null) return;
 
-        e.preventDefault();
-
         const touch = e.touches[0];
         const elementOver = document.elementFromPoint(touch.clientX, touch.clientY);
 
         if (elementOver) {
-            const cardElement = elementOver.closest('[data-draggable-index]');
+            const cardElement = elementOver.closest('[data-draggable-index]') as HTMLElement;
             if (cardElement) {
                 const indexStr = cardElement.getAttribute('data-draggable-index');
                 const index = indexStr ? parseInt(indexStr, 10) : null;
-                if (index !== null && !isNaN(index)) {
-                    handleDragOver(e, index);
+                if (index !== null && !isNaN(index) && index !== draggedOverIndex) {
+                    const targetRect = cardElement.getBoundingClientRect();
+                    const targetCenter = targetRect.top + targetRect.height / 2;
+
+                    // Only swap if we've crossed the center point of the target
+                    if ((index > draggedItem && touch.clientY > targetCenter) ||
+                        (index < draggedItem && touch.clientY < targetCenter)) {
+                        const items = Array.from(blocks);
+                        const [reorderedItem] = items.splice(draggedItem, 1);
+                        items.splice(index, 0, reorderedItem);
+                        setBlocks(items);
+                        setDraggedItem(index);
+                        setDraggedOverIndex(index);
+                    }
                 }
             }
         }
     };
 
     const handleTouchEnd = () => {
-        handleDragEnd();
+        setDraggedItem(null);
+        setDraggedOverIndex(null);
     };
 
     const removeBlock = (blockId: string) => {
@@ -1287,9 +1302,6 @@ export function CreatePlaylistBlocks({ mode }: CreatePlaylistBlocksProps) {
                                         onDragStart={(e) => handleDragStart(e, index)}
                                         onDragOver={(e) => handleDragOver(e, index)}
                                         onDragEnd={handleDragEnd}
-                                        onTouchStart={(e) => handleTouchStart(e, index)}
-                                        onTouchMove={(e) => handleTouchMove(e)}
-                                        onTouchEnd={handleTouchEnd}
                                         data-draggable-index={index}
                                         onClick={() => block.type === 'podcast'
                                             ? handlePodcastClick(block.id)
@@ -1302,7 +1314,7 @@ export function CreatePlaylistBlocks({ mode }: CreatePlaylistBlocksProps) {
                                         sx={{
                                             p: 3,
                                             bgcolor: '#282828',
-                                            cursor: 'pointer',
+                                            cursor: draggedItem === index ? 'grabbing' : 'pointer',
                                             transition: 'all 0.2s ease-in-out',
                                             borderRadius: 2,
                                             position: 'relative',
@@ -1311,26 +1323,38 @@ export function CreatePlaylistBlocks({ mode }: CreatePlaylistBlocksProps) {
                                             transform: draggedItem === index ? 'scale(1.03)' : 'none',
                                             boxShadow: draggedItem === index ? '0 10px 20px rgba(0,0,0,0.3)' : '0 6px 10px rgba(0, 0, 0, 0.3)',
                                             zIndex: draggedItem === index ? 1000 : 1,
+                                            touchAction: 'pan-y',
                                             '&:hover': {
                                                 bgcolor: '#3E3E3E',
-                                                transform: 'translateY(-4px)',
+                                                transform: draggedItem === index ? 'scale(1.03)' : 'translateY(-4px)',
                                                 boxShadow: '0 6px 10px rgba(0, 0, 0, 0.3)'
                                             },
                                         }}
                                     >
-                                        <Box sx={{
-                                            display: { xs: 'flex', sm: 'none' },
-                                            position: 'absolute',
-                                            top: 20,
-                                            left: 2,
-                                            'data-drag-handle': 'true',
-                                            color: '#B3B3B3',
-                                            zIndex: 1,
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                            height: '40px',
-                                            width: '40px'
-                                        }}>
+                                        <Box
+                                            sx={{
+                                                display: { xs: 'flex', sm: 'none' },
+                                                position: 'absolute',
+                                                top: 0,
+                                                left: 0,
+                                                'data-drag-handle': 'true',
+                                                color: '#B3B3B3',
+                                                zIndex: 2,
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                height: '100%',
+                                                width: '50px',
+                                                touchAction: 'none',
+                                                cursor: 'grab',
+                                                '&:active': {
+                                                    cursor: 'grabbing',
+                                                    bgcolor: 'rgba(255,255,255,0.05)'
+                                                }
+                                            }}
+                                            onTouchStart={(e) => handleTouchStart(e, index)}
+                                            onTouchMove={handleTouchMove}
+                                            onTouchEnd={handleTouchEnd}
+                                        >
                                             <DragIndicatorIcon />
                                         </Box>
 
@@ -1368,12 +1392,12 @@ export function CreatePlaylistBlocks({ mode }: CreatePlaylistBlocksProps) {
                                             }}>
                                                 <DragIndicatorIcon sx={{ mr: 1 }} />
                                                 {block.type === 'podcast' ?
-                                                    <PodcastsIcon sx={{ color: '#1DB954', fontSize: '1.2rem', display: { xs: 'inline-flex', sm: 'none' } }} /> :
+                                                    <PodcastsIcon sx={{ color: '#1DB954', fontSize: '1.2rem' }} /> :
                                                     block.type === 'latest-podcast' ?
-                                                        <NewReleasesIcon sx={{ color: '#1DB954', fontSize: '1.2rem', display: { xs: 'inline-flex', sm: 'none' } }} /> :
+                                                        <NewReleasesIcon sx={{ color: '#1DB954', fontSize: '1.2rem' }} /> :
                                                         block.type === 'recommended-songs' ?
-                                                            <RecommendIcon sx={{ color: '#1DB954', fontSize: '1.2rem', display: { xs: 'inline-flex', sm: 'none' } }} /> :
-                                                            <QueueMusicIcon sx={{ color: '#1DB954', fontSize: '1.2rem', display: { xs: 'inline-flex', sm: 'none' } }} />
+                                                            <RecommendIcon sx={{ color: '#1DB954', fontSize: '1.2rem' }} /> :
+                                                            <QueueMusicIcon sx={{ color: '#1DB954', fontSize: '1.2rem' }} />
                                                 }
                                             </Box>
 
