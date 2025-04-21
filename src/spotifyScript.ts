@@ -33,11 +33,16 @@ export async function checkTokenValidity(): Promise<boolean> {
 }
 
 export async function getSpotifyData() {
-    // Only proceed with authentication if we're not already authenticated
-    if (isAuthenticated) return true;
-
     // Check if we have a valid token already
-    if (await checkTokenValidity()) return true;
+    const token = localStorage.getItem('spotify_access_token');
+    if (token) {
+        const isValid = await checkTokenValidity();
+        if (isValid) {
+            isAuthenticated = true;
+            accessTokenGlobal = token;
+            return true;
+        }
+    }
 
     const params = new URLSearchParams(window.location.search);
     const code = params.get("code");
@@ -47,34 +52,29 @@ export async function getSpotifyData() {
             redirectToAuthCodeFlow(clientId);
             return false;
         } else {
-            var accessTokenGlobal = localStorage.getItem('spotify_access_token');
-
-            if (!accessTokenGlobal) {
-                accessTokenGlobal = await getAccessToken(clientId, code);
-            }
-
-            if (!accessTokenGlobal) {
+            const accessToken = await getAccessToken(clientId, code);
+            if (!accessToken) {
                 throw new Error('Failed to get access token');
             }
 
-            const profile = await fetchProfile(accessTokenGlobal);
-
-            console.log('Profile:', profile);
-
+            const profile = await fetchProfile(accessToken);
             if (profile.error) {
                 throw new Error('Failed to fetch profile: ' + profile.error.message);
             }
 
             populateUI(profile);
             isAuthenticated = true;
+            accessTokenGlobal = accessToken;
             return true;
         }
     } catch (error) {
-        console.error('Custom authentication error:', error);
+        console.error('Authentication error:', error);
         isAuthenticated = false;
         accessTokenGlobal = null;
         localStorage.removeItem('spotify_access_token');
         localStorage.removeItem('profile_id');
+        localStorage.removeItem('profile_image');
+        localStorage.removeItem('profile_display_name');
         return false;
     }
 }

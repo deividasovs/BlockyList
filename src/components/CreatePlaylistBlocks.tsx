@@ -329,7 +329,7 @@ export function CreatePlaylistBlocks({ mode }: CreatePlaylistBlocksProps) {
         setBlocks([...blocks, {
             id: `block-${Date.now()}`,
             type: 'recommended-songs',
-            title: 'New Recommended Songs Block',
+            title: 'Recommended Songs',
             description: 'Based on your listening history',
             songRange: { min: 4, max: 7 }
         }]);
@@ -1281,8 +1281,56 @@ export function CreatePlaylistBlocks({ mode }: CreatePlaylistBlocksProps) {
                                             },
                                         }}
                                     >
+                                        {/* Top Left Drag Icon - Mobile Only */}
+                                        <Box sx={{
+                                            display: { xs: 'flex', sm: 'none' },
+                                            position: 'absolute',
+                                            top: 20,
+                                            left: 2,
+                                            color: '#B3B3B3',
+                                            zIndex: 1,
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            height: '40px',
+                                            width: '40px'
+                                        }}>
+                                            <DragIndicatorIcon />
+                                        </Box>
+
+                                        {/* Top Right Delete Icon - Mobile Only */}
+                                        <Box sx={{
+                                            display: { xs: 'flex', sm: 'none' },
+                                            position: 'absolute',
+                                            top: 20,
+                                            right: 8,
+                                            zIndex: 1,
+                                            height: '40px',
+                                            width: '40px'
+                                        }}>
+                                            <IconButton
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    removeBlock(block.id);
+                                                }}
+                                                sx={{
+                                                    color: '#B3B3B3',
+                                                    '&:hover': {
+                                                        color: '#FFFFFF',
+                                                        bgcolor: 'rgba(255,255,255,0.1)'
+                                                    }
+                                                }}
+                                            >
+                                                <DeleteIcon />
+                                            </IconButton>
+                                        </Box>
+
                                         <Stack direction="row" alignItems="center" spacing={2}>
-                                            <Box sx={{ display: 'flex', alignItems: 'center', color: '#B3B3B3' }}>
+                                            {/* Left Icons - Desktop Only */}
+                                            <Box sx={{
+                                                display: { xs: 'none', sm: 'flex' },
+                                                alignItems: 'center',
+                                                color: '#B3B3B3'
+                                            }}>
                                                 <DragIndicatorIcon sx={{ mr: 1 }} />
                                                 {block.type === 'podcast' ?
                                                     <PodcastsIcon sx={{ color: '#1DB954' }} /> :
@@ -1293,8 +1341,17 @@ export function CreatePlaylistBlocks({ mode }: CreatePlaylistBlocksProps) {
                                                             <QueueMusicIcon sx={{ color: '#1DB954' }} />
                                                 }
                                             </Box>
+
                                             <Box sx={{ flexGrow: 1 }}>
-                                                <Typography variant="subtitle1" sx={{ color: '#FFFFFF', fontWeight: 'bold' }}>
+                                                <Typography variant="subtitle1" sx={{ color: '#FFFFFF', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: 1 }}>
+                                                    {block.type === 'podcast' ?
+                                                        <PodcastsIcon sx={{ color: '#1DB954', fontSize: '1.2rem' }} /> :
+                                                        block.type === 'latest-podcast' ?
+                                                            <NewReleasesIcon sx={{ color: '#1DB954', fontSize: '1.2rem' }} /> :
+                                                            block.type === 'recommended-songs' ?
+                                                                <RecommendIcon sx={{ color: '#1DB954', fontSize: '1.2rem' }} /> :
+                                                                <QueueMusicIcon sx={{ color: '#1DB954', fontSize: '1.2rem' }} />
+                                                    }
                                                     {block.title}
                                                 </Typography>
                                                 <Typography
@@ -1320,67 +1377,70 @@ export function CreatePlaylistBlocks({ mode }: CreatePlaylistBlocksProps) {
                                                             gap: 1
                                                         }}
                                                     >
-                                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                                                            <Typography variant="body2" sx={{ color: '#FFFFFF', flexShrink: 0 }}>
-                                                                Number of songs:
-                                                            </Typography>
-                                                            <Stack
-                                                                direction="row"
-                                                                spacing={1}
-                                                                sx={{
-                                                                    flexWrap: 'wrap',
-                                                                    gap: 1
-                                                                }}
-                                                            >
-                                                                {songRangeOptions.map((option) => (
-                                                                    <Chip
-                                                                        key={option.label}
-                                                                        label={option.label}
-                                                                        onClick={() => handleSongRangeSelect(
-                                                                            block.id,
-                                                                            option.min,
-                                                                            option.max
-                                                                        )}
-                                                                        color={
-                                                                            block.songRange?.min === option.min &&
-                                                                                block.songRange?.max === option.max
-                                                                                ? "primary"
-                                                                                : "default"
-                                                                        }
-                                                                        sx={{
+                                                        <Typography variant="body2" sx={{ color: '#FFFFFF', mb: 1 }}>
+                                                            Number of songs:
+                                                        </Typography>
+                                                        <Box
+                                                            sx={{
+                                                                display: 'flex',
+                                                                flexDirection: { xs: 'column', sm: 'row' },
+                                                                gap: 1,
+                                                                flexWrap: 'wrap'
+                                                            }}
+                                                        >
+                                                            {songRangeOptions.map((option) => (
+                                                                <Chip
+                                                                    key={option.label}
+                                                                    label={option.label}
+                                                                    onClick={() => handleSongRangeSelect(
+                                                                        block.id,
+                                                                        option.min,
+                                                                        option.max
+                                                                    )}
+                                                                    color={
+                                                                        block.songRange?.min === option.min &&
+                                                                            block.songRange?.max === option.max
+                                                                            ? "primary"
+                                                                            : "default"
+                                                                    }
+                                                                    sx={{
+                                                                        bgcolor: block.songRange?.min === option.min &&
+                                                                            block.songRange?.max === option.max
+                                                                            ? '#1DB954'
+                                                                            : 'rgba(255,255,255,0.1)',
+                                                                        color: block.songRange?.min === option.min &&
+                                                                            block.songRange?.max === option.max
+                                                                            ? '#FFFFFF'
+                                                                            : '#FFFFFF',
+                                                                        '&:hover': {
                                                                             bgcolor: block.songRange?.min === option.min &&
                                                                                 block.songRange?.max === option.max
-                                                                                ? '#1DB954'
-                                                                                : 'rgba(255,255,255,0.1)',
-                                                                            color: block.songRange?.min === option.min &&
-                                                                                block.songRange?.max === option.max
-                                                                                ? '#FFFFFF'
-                                                                                : '#FFFFFF',
-                                                                            '&:hover': {
-                                                                                bgcolor: block.songRange?.min === option.min &&
-                                                                                    block.songRange?.max === option.max
-                                                                                    ? '#1ed760'
-                                                                                    : 'rgba(255,255,255,0.2)',
-                                                                            }
-                                                                        }}
-                                                                    />
-                                                                ))}
-                                                            </Stack>
+                                                                                ? '#1ed760'
+                                                                                : 'rgba(255,255,255,0.2)',
+                                                                        },
+                                                                        width: { xs: '100%', sm: 'auto' },
+                                                                        justifyContent: 'center'
+                                                                    }}
+                                                                />
+                                                            ))}
                                                         </Box>
                                                     </Box>
                                                 )}
                                             </Box>
+
+                                            {/* Delete Button - Desktop Only */}
                                             <IconButton
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    removeBlock(block.id);
-                                                }}
                                                 sx={{
+                                                    display: { xs: 'none', sm: 'flex' },
                                                     color: '#B3B3B3',
                                                     '&:hover': {
                                                         color: '#FFFFFF',
                                                         bgcolor: 'rgba(255,255,255,0.1)'
                                                     }
+                                                }}
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    removeBlock(block.id);
                                                 }}
                                             >
                                                 <DeleteIcon />
