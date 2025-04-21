@@ -301,8 +301,8 @@ export function CreatePlaylistBlocks({ mode }: CreatePlaylistBlocksProps) {
         setBlocks([...blocks, {
             id: `block-${Date.now()}`,
             type: 'latest-podcast',
-            title: 'Latest From Show',
-            description: 'Click to select a show'
+            title: 'Latest Podcast Episode',
+            description: 'Click to select a Podcast from which to pull in the latest episode'
         }]);
         setSnackbar({
             open: true,
@@ -315,7 +315,7 @@ export function CreatePlaylistBlocks({ mode }: CreatePlaylistBlocksProps) {
         setBlocks([...blocks, {
             id: `block-${Date.now()}`,
             type: 'songs',
-            title: 'Songs From Playlist',
+            title: 'Playlist',
             description: 'Click to select a playlist',
             songRange: { min: 4, max: 7 }
         }]);
@@ -1151,11 +1151,11 @@ export function CreatePlaylistBlocks({ mode }: CreatePlaylistBlocksProps) {
                         </Typography>
 
                         <Grid container spacing={2} sx={{ mb: 4 }}>
-                            <Grid item xs={12} sm={6} md={3}>
+                            <Grid item xs={6} sm={6} md={3}>
                                 <Button
                                     variant="contained"
                                     fullWidth
-                                    startIcon={<PodcastsIcon />}
+                                    startIcon={<PodcastsIcon sx={{ width: 30, height: 30 }} />}
                                     onClick={addPodcastBlock}
                                     sx={{
                                         bgcolor: '#1DB954',
@@ -1164,7 +1164,7 @@ export function CreatePlaylistBlocks({ mode }: CreatePlaylistBlocksProps) {
                                             bgcolor: '#1ed760',
                                         },
                                         borderRadius: 2,
-                                        py: 1,
+                                        py: { xs: 0.5, sm: 1 },
                                         height: '100%',
                                         display: 'flex',
                                         flexDirection: 'column',
@@ -1172,17 +1172,14 @@ export function CreatePlaylistBlocks({ mode }: CreatePlaylistBlocksProps) {
                                         justifyContent: 'center'
                                     }}
                                 >
-                                    <Box sx={{ mb: 0.5 }}>
-                                        <PodcastsIcon sx={{ fontSize: 28 }} />
-                                    </Box>
-                                    Add Podcast Episode
+                                    Podcast Episode
                                 </Button>
                             </Grid>
-                            <Grid item xs={12} sm={6} md={3}>
+                            <Grid item xs={6} sm={6} md={3}>
                                 <Button
                                     variant="contained"
                                     fullWidth
-                                    startIcon={<NewReleasesIcon />}
+                                    startIcon={<NewReleasesIcon sx={{ width: 30, height: 30 }} />}
                                     onClick={addLatestPodcastBlock}
                                     sx={{
                                         bgcolor: '#1DB954',
@@ -1191,7 +1188,7 @@ export function CreatePlaylistBlocks({ mode }: CreatePlaylistBlocksProps) {
                                             bgcolor: '#1ed760',
                                         },
                                         borderRadius: 2,
-                                        py: 1,
+                                        py: { xs: 0.5, sm: 1 },
                                         height: '100%',
                                         display: 'flex',
                                         flexDirection: 'column',
@@ -1199,17 +1196,14 @@ export function CreatePlaylistBlocks({ mode }: CreatePlaylistBlocksProps) {
                                         justifyContent: 'center'
                                     }}
                                 >
-                                    <Box sx={{ mb: 0.5 }}>
-                                        <NewReleasesIcon sx={{ fontSize: 28 }} />
-                                    </Box>
-                                    Latest From Show
+                                    Latest Podcast Episode
                                 </Button>
                             </Grid>
-                            <Grid item xs={12} sm={6} md={3}>
+                            <Grid item xs={6} sm={6} md={3}>
                                 <Button
                                     variant="contained"
                                     fullWidth
-                                    startIcon={<QueueMusicIcon />}
+                                    startIcon={<QueueMusicIcon sx={{ width: 30, height: 30 }} />}
                                     onClick={addSongsBlock}
                                     sx={{
                                         bgcolor: '#1DB954',
@@ -1218,7 +1212,7 @@ export function CreatePlaylistBlocks({ mode }: CreatePlaylistBlocksProps) {
                                             bgcolor: '#1ed760',
                                         },
                                         borderRadius: 2,
-                                        py: 1,
+                                        py: { xs: 0.5, sm: 1 },
                                         height: '100%',
                                         display: 'flex',
                                         flexDirection: 'column',
@@ -1226,17 +1220,14 @@ export function CreatePlaylistBlocks({ mode }: CreatePlaylistBlocksProps) {
                                         justifyContent: 'center'
                                     }}
                                 >
-                                    <Box sx={{ mb: 0.5 }}>
-                                        <QueueMusicIcon sx={{ fontSize: 28 }} />
-                                    </Box>
-                                    Add Songs
+                                    Playlist
                                 </Button>
                             </Grid>
-                            <Grid item xs={12} sm={6} md={3}>
+                            <Grid item xs={6} sm={6} md={3}>
                                 <Button
                                     variant="contained"
                                     fullWidth
-                                    startIcon={<RecommendIcon />}
+                                    startIcon={<RecommendIcon sx={{ width: 30, height: 30 }} />}
                                     onClick={addRecommendedSongsBlock}
                                     sx={{
                                         bgcolor: '#1DB954',
@@ -1245,7 +1236,7 @@ export function CreatePlaylistBlocks({ mode }: CreatePlaylistBlocksProps) {
                                             bgcolor: '#1ed760',
                                         },
                                         borderRadius: 2,
-                                        py: 1,
+                                        py: { xs: 0.5, sm: 1 },
                                         height: '100%',
                                         display: 'flex',
                                         flexDirection: 'column',
@@ -1253,9 +1244,6 @@ export function CreatePlaylistBlocks({ mode }: CreatePlaylistBlocksProps) {
                                         justifyContent: 'center'
                                     }}
                                 >
-                                    <Box sx={{ mb: 0.5 }}>
-                                        <RecommendIcon sx={{ fontSize: 28 }} />
-                                    </Box>
                                     Recommended Songs
                                 </Button>
                             </Grid>
@@ -1380,24 +1368,24 @@ export function CreatePlaylistBlocks({ mode }: CreatePlaylistBlocksProps) {
                                             }}>
                                                 <DragIndicatorIcon sx={{ mr: 1 }} />
                                                 {block.type === 'podcast' ?
-                                                    <PodcastsIcon sx={{ color: '#1DB954' }} /> :
+                                                    <PodcastsIcon sx={{ color: '#1DB954', fontSize: '1.2rem', display: { xs: 'inline-flex', sm: 'none' } }} /> :
                                                     block.type === 'latest-podcast' ?
-                                                        <NewReleasesIcon sx={{ color: '#1DB954' }} /> :
+                                                        <NewReleasesIcon sx={{ color: '#1DB954', fontSize: '1.2rem', display: { xs: 'inline-flex', sm: 'none' } }} /> :
                                                         block.type === 'recommended-songs' ?
-                                                            <RecommendIcon sx={{ color: '#1DB954' }} /> :
-                                                            <QueueMusicIcon sx={{ color: '#1DB954' }} />
+                                                            <RecommendIcon sx={{ color: '#1DB954', fontSize: '1.2rem', display: { xs: 'inline-flex', sm: 'none' } }} /> :
+                                                            <QueueMusicIcon sx={{ color: '#1DB954', fontSize: '1.2rem', display: { xs: 'inline-flex', sm: 'none' } }} />
                                                 }
                                             </Box>
 
                                             <Box sx={{ flexGrow: 1 }}>
                                                 <Typography variant="subtitle1" sx={{ color: '#FFFFFF', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: 1 }}>
                                                     {block.type === 'podcast' ?
-                                                        <PodcastsIcon sx={{ color: '#1DB954', fontSize: '1.2rem' }} /> :
+                                                        <PodcastsIcon sx={{ color: '#1DB954', fontSize: '1.2rem', display: { xs: 'inline-flex', sm: 'none' } }} /> :
                                                         block.type === 'latest-podcast' ?
-                                                            <NewReleasesIcon sx={{ color: '#1DB954', fontSize: '1.2rem' }} /> :
+                                                            <NewReleasesIcon sx={{ color: '#1DB954', fontSize: '1.2rem', display: { xs: 'inline-flex', sm: 'none' } }} /> :
                                                             block.type === 'recommended-songs' ?
-                                                                <RecommendIcon sx={{ color: '#1DB954', fontSize: '1.2rem' }} /> :
-                                                                <QueueMusicIcon sx={{ color: '#1DB954', fontSize: '1.2rem' }} />
+                                                                <RecommendIcon sx={{ color: '#1DB954', fontSize: '1.2rem', display: { xs: 'inline-flex', sm: 'none' } }} /> :
+                                                                <QueueMusicIcon sx={{ color: '#1DB954', fontSize: '1.2rem', display: { xs: 'inline-flex', sm: 'none' } }} />
                                                     }
                                                     {block.title}
                                                 </Typography>
@@ -1429,10 +1417,9 @@ export function CreatePlaylistBlocks({ mode }: CreatePlaylistBlocksProps) {
                                                         </Typography>
                                                         <Box
                                                             sx={{
-                                                                display: 'flex',
-                                                                flexDirection: { xs: 'column', sm: 'row' },
-                                                                gap: 1,
-                                                                flexWrap: 'wrap'
+                                                                display: 'grid',
+                                                                gridTemplateColumns: { xs: 'repeat(2, 1fr)', sm: 'repeat(4, 1fr)' },
+                                                                gap: 1
                                                             }}
                                                         >
                                                             {songRangeOptions.map((option) => (
@@ -1465,8 +1452,10 @@ export function CreatePlaylistBlocks({ mode }: CreatePlaylistBlocksProps) {
                                                                                 ? '#1ed760'
                                                                                 : 'rgba(255,255,255,0.2)',
                                                                         },
-                                                                        width: { xs: '100%', sm: 'auto' },
-                                                                        justifyContent: 'center'
+                                                                        width: '100%',
+                                                                        justifyContent: 'center',
+                                                                        height: { xs: '36px', sm: 'auto' },
+                                                                        fontSize: { xs: '0.9rem', sm: '0.8125rem' }
                                                                     }}
                                                                 />
                                                             ))}
