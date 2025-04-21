@@ -1179,12 +1179,13 @@ export function CreatePlaylistBlocks({ mode }: CreatePlaylistBlocksProps) {
                                             bgcolor: '#1ed760',
                                         },
                                         borderRadius: 2,
-                                        py: { xs: 0.5, sm: 1 },
+                                        py: { xs: 0.4, sm: 1 },
                                         height: '100%',
                                         display: 'flex',
                                         flexDirection: 'column',
                                         alignItems: 'center',
-                                        justifyContent: 'center'
+                                        justifyContent: 'center',
+                                        fontSize: { xs: '0.8rem', sm: '0.9rem' }
                                     }}
                                 >
                                     Podcast Episode
@@ -1203,12 +1204,13 @@ export function CreatePlaylistBlocks({ mode }: CreatePlaylistBlocksProps) {
                                             bgcolor: '#1ed760',
                                         },
                                         borderRadius: 2,
-                                        py: { xs: 0.5, sm: 1 },
+                                        py: { xs: 0.4, sm: 1 },
                                         height: '100%',
                                         display: 'flex',
                                         flexDirection: 'column',
                                         alignItems: 'center',
-                                        justifyContent: 'center'
+                                        justifyContent: 'center',
+                                        fontSize: { xs: '0.8rem', sm: '0.9rem' }
                                     }}
                                 >
                                     Latest Podcast Episode
@@ -1227,12 +1229,13 @@ export function CreatePlaylistBlocks({ mode }: CreatePlaylistBlocksProps) {
                                             bgcolor: '#1ed760',
                                         },
                                         borderRadius: 2,
-                                        py: { xs: 0.5, sm: 1 },
+                                        py: { xs: 0.4, sm: 1 },
                                         height: '100%',
                                         display: 'flex',
                                         flexDirection: 'column',
                                         alignItems: 'center',
-                                        justifyContent: 'center'
+                                        justifyContent: 'center',
+                                        fontSize: { xs: '0.8rem', sm: '0.9rem' }
                                     }}
                                 >
                                     Playlist
@@ -1251,12 +1254,13 @@ export function CreatePlaylistBlocks({ mode }: CreatePlaylistBlocksProps) {
                                             bgcolor: '#1ed760',
                                         },
                                         borderRadius: 2,
-                                        py: { xs: 0.5, sm: 1 },
+                                        py: { xs: 0.4, sm: 1 },
                                         height: '100%',
                                         display: 'flex',
                                         flexDirection: 'column',
                                         alignItems: 'center',
-                                        justifyContent: 'center'
+                                        justifyContent: 'center',
+                                        fontSize: { xs: '0.8rem', sm: '0.9rem' }
                                     }}
                                 >
                                     Recommended Songs
@@ -1264,15 +1268,20 @@ export function CreatePlaylistBlocks({ mode }: CreatePlaylistBlocksProps) {
                             </Grid>
                         </Grid>
 
-                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                            <Typography variant="h6" sx={{ color: '#FFFFFF' }}>
+                        <Box sx={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            mb: 3,
+                            flexWrap: { xs: 'nowrap', sm: 'wrap' },
+                            gap: 1
+                        }}>
+                            <Typography variant="h6" sx={{
+                                color: '#FFFFFF',
+                                fontSize: { xs: '1.2rem', sm: '1.25rem' }
+                            }}>
                                 Your Blocks ({blocks.length})
                             </Typography>
-                            {blocks.length > 0 && (
-                                <Typography variant="body2" sx={{ color: '#B3B3B3' }}>
-                                    Drag to reorder • Click to edit
-                                </Typography>
-                            )}
                         </Box>
 
                         {blocks.length === 0 ? (
@@ -1392,24 +1401,24 @@ export function CreatePlaylistBlocks({ mode }: CreatePlaylistBlocksProps) {
                                             }}>
                                                 <DragIndicatorIcon sx={{ mr: 1 }} />
                                                 {block.type === 'podcast' ?
-                                                    <PodcastsIcon sx={{ color: '#1DB954', fontSize: '1.2rem' }} /> :
+                                                    <PodcastsIcon sx={{ color: '#1DB954', fontSize: { xs: '1.2rem', sm: '1.5rem' } }} /> :
                                                     block.type === 'latest-podcast' ?
-                                                        <NewReleasesIcon sx={{ color: '#1DB954', fontSize: '1.2rem' }} /> :
+                                                        <NewReleasesIcon sx={{ color: '#1DB954', fontSize: { xs: '1.2rem', sm: '1.5rem' } }} /> :
                                                         block.type === 'recommended-songs' ?
-                                                            <RecommendIcon sx={{ color: '#1DB954', fontSize: '1.2rem' }} /> :
-                                                            <QueueMusicIcon sx={{ color: '#1DB954', fontSize: '1.2rem' }} />
+                                                            <RecommendIcon sx={{ color: '#1DB954', fontSize: { xs: '1.2rem', sm: '1.5rem' } }} /> :
+                                                            <QueueMusicIcon sx={{ color: '#1DB954', fontSize: { xs: '1.2rem', sm: '1.5rem' } }} />
                                                 }
                                             </Box>
 
                                             <Box sx={{ flexGrow: 1 }}>
                                                 <Typography variant="subtitle1" sx={{ color: '#FFFFFF', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: 1 }}>
                                                     {block.type === 'podcast' ?
-                                                        <PodcastsIcon sx={{ color: '#1DB954', fontSize: '1.2rem', display: { xs: 'inline-flex', sm: 'none' } }} /> :
+                                                        <PodcastsIcon sx={{ color: '#1DB954', fontSize: { xs: '1.2rem', sm: '1.5rem' }, display: { xs: 'inline-flex', sm: 'none' } }} /> :
                                                         block.type === 'latest-podcast' ?
-                                                            <NewReleasesIcon sx={{ color: '#1DB954', fontSize: '1.2rem', display: { xs: 'inline-flex', sm: 'none' } }} /> :
+                                                            <NewReleasesIcon sx={{ color: '#1DB954', fontSize: { xs: '1.2rem', sm: '1.5rem' }, display: { xs: 'inline-flex', sm: 'none' } }} /> :
                                                             block.type === 'recommended-songs' ?
-                                                                <RecommendIcon sx={{ color: '#1DB954', fontSize: '1.2rem', display: { xs: 'inline-flex', sm: 'none' } }} /> :
-                                                                <QueueMusicIcon sx={{ color: '#1DB954', fontSize: '1.2rem', display: { xs: 'inline-flex', sm: 'none' } }} />
+                                                                <RecommendIcon sx={{ color: '#1DB954', fontSize: { xs: '1.2rem', sm: '1.5rem' }, display: { xs: 'inline-flex', sm: 'none' } }} /> :
+                                                                <QueueMusicIcon sx={{ color: '#1DB954', fontSize: { xs: '1.2rem', sm: '1.5rem' }, display: { xs: 'inline-flex', sm: 'none' } }} />
                                                     }
                                                     {block.title}
                                                 </Typography>
