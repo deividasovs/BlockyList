@@ -1419,7 +1419,8 @@ export function CreatePlaylistBlocks({ mode }: CreatePlaylistBlocksProps) {
                                                             sx={{
                                                                 display: 'grid',
                                                                 gridTemplateColumns: { xs: 'repeat(2, 1fr)', sm: 'repeat(4, 1fr)' },
-                                                                gap: 1
+                                                                gap: 1,
+                                                                width: { xs: '100%', sm: 'fit-content' }
                                                             }}
                                                         >
                                                             {songRangeOptions.map((option) => (
@@ -1454,8 +1455,11 @@ export function CreatePlaylistBlocks({ mode }: CreatePlaylistBlocksProps) {
                                                                         },
                                                                         width: '100%',
                                                                         justifyContent: 'center',
-                                                                        height: { xs: '36px', sm: 'auto' },
-                                                                        fontSize: { xs: '0.9rem', sm: '0.8125rem' }
+                                                                        height: { xs: '34px', sm: '40px' },
+                                                                        fontSize: { xs: '0.7rem', sm: '0.9rem' },
+                                                                        '& .MuiChip-label': {
+                                                                            px: { xs: 1, sm: 3 }
+                                                                        }
                                                                     }}
                                                                 />
                                                             ))}
