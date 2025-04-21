@@ -443,7 +443,6 @@ function MainPage() {
                       '&:hover': {
                         bgcolor: '#1ed760',
                       },
-                      boxShadow: '0 4px 20px rgba(29, 185, 84, 0.5)'
                     }}
                   >
                     <AddIcon />
@@ -569,7 +568,8 @@ function MainPage() {
                                 mt: 'auto',
                                 display: 'flex',
                                 alignItems: 'center',
-                                justifyContent: 'space-between'
+                                gap: 2,
+                                flexDirection: 'column'
                               }}
                             >
                               <Typography
@@ -579,38 +579,36 @@ function MainPage() {
                                   fontWeight: 'medium',
                                   display: 'flex',
                                   alignItems: 'center',
-                                  gap: 0.5
+                                  gap: 0.5,
+                                  opacity: 0.9
                                 }}
                               >
-                                <span>{playlist.blocks?.length || 0} blocks</span>
+                                {playlist.blocks?.length || 0} blocks
                               </Typography>
-
-                              <Box sx={{ display: 'flex', gap: 1 }}>
-
-                                <Button
-                                  variant="contained"
-                                  size="small"
-                                  startIcon={creatingPlaylistId === playlist.id ? <CircularProgress size={16} sx={{ color: '#FFFFFF' }} /> : <PlaylistAddIcon fontSize="small" />}
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    createPlaylistOnSpotify(playlist);
-                                  }}
-                                  disabled={creatingPlaylistId !== null}
-                                  sx={{
-                                    color: '#FFFFFF',
-                                    bgcolor: '#1DB954',
-                                    '&:hover': {
-                                      bgcolor: '#1ed760',
-                                    },
-                                    textTransform: 'none',
-                                    fontSize: '0.8rem',
-                                    py: 0.5,
-                                    px: 1.5
-                                  }}
-                                >
-                                  {creatingPlaylistId !== playlist.id && 'Create Playlist on Spotify'}
-                                </Button>
-                              </Box>
+                              <Button
+                                variant="contained"
+                                size="small"
+                                fullWidth
+                                startIcon={creatingPlaylistId === playlist.id ? <CircularProgress size={16} sx={{ color: '#FFFFFF' }} /> : <PlaylistAddIcon fontSize="small" />}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  createPlaylistOnSpotify(playlist);
+                                }}
+                                disabled={creatingPlaylistId !== null}
+                                sx={{
+                                  color: '#FFFFFF',
+                                  bgcolor: '#1DB954',
+                                  '&:hover': {
+                                    bgcolor: '#1ed760',
+                                  },
+                                  textTransform: 'none',
+                                  fontSize: '0.8rem',
+                                  py: 1,
+                                  px: 1.5
+                                }}
+                              >
+                                {creatingPlaylistId === playlist.id ? 'Creating...' : 'Create Playlist on Spotify'}
+                              </Button>
                             </Box>
                           </Paper>
                         </Fade>
