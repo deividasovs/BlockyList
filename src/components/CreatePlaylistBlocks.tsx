@@ -115,6 +115,7 @@ export function CreatePlaylistBlocks({ mode }: CreatePlaylistBlocksProps) {
     const [isSelfDeleting, setIsSelfDeleting] = useState(false);
     const [isDailyCreating, setIsDailyCreating] = useState(false);
     const [draggedItem, setDraggedItem] = useState<number | null>(null);
+    const [draggedOverIndex, setDraggedOverIndex] = useState<number | null>(null);
     const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
     const [isPodcastDialogOpen, setIsPodcastDialogOpen] = useState(false);
     const [recentPodcasts, setRecentPodcasts] = useState<PodcastEpisode[]>([]);
@@ -340,26 +341,65 @@ export function CreatePlaylistBlocks({ mode }: CreatePlaylistBlocksProps) {
         });
     };
 
-    const handleDragStart = (e: React.DragEvent, index: number) => {
+    const handleDragStart = (e: React.DragEvent | React.TouchEvent, index: number) => {
         setDraggedItem(index);
-        e.dataTransfer.effectAllowed = 'move';
+        if ('dataTransfer' in e) {
+            e.dataTransfer.effectAllowed = 'move';
+        }
+        setDraggedOverIndex(index);
     };
 
-    const handleDragOver = (e: React.DragEvent, index: number) => {
+    const handleDragOver = (e: React.DragEvent | React.TouchEvent, index: number) => {
         e.preventDefault();
-        if (draggedItem === null) return;
+        if (draggedItem === null || index === draggedOverIndex) return;
 
-        const items = Array.from(blocks);
-        const draggedItemContent = items[draggedItem];
-        items.splice(draggedItem, 1);
-        items.splice(index, 0, draggedItemContent);
+        setDraggedOverIndex(index);
 
-        setBlocks(items);
-        setDraggedItem(index);
+        if (draggedItem !== index) {
+            const items = Array.from(blocks);
+            const [reorderedItem] = items.splice(draggedItem, 1);
+            items.splice(index, 0, reorderedItem);
+
+            setBlocks(items);
+            setDraggedItem(index);
+        }
     };
 
     const handleDragEnd = () => {
         setDraggedItem(null);
+        setDraggedOverIndex(null);
+    };
+
+    const handleTouchStart = (e: React.TouchEvent, index: number) => {
+        const target = e.target as HTMLElement;
+        if (target.closest('[data-drag-handle="true"]')) {
+            e.preventDefault();
+            handleDragStart(e, index);
+        }
+    };
+
+    const handleTouchMove = (e: React.TouchEvent) => {
+        if (draggedItem === null) return;
+
+        e.preventDefault();
+
+        const touch = e.touches[0];
+        const elementOver = document.elementFromPoint(touch.clientX, touch.clientY);
+
+        if (elementOver) {
+            const cardElement = elementOver.closest('[data-draggable-index]');
+            if (cardElement) {
+                const indexStr = cardElement.getAttribute('data-draggable-index');
+                const index = indexStr ? parseInt(indexStr, 10) : null;
+                if (index !== null && !isNaN(index)) {
+                    handleDragOver(e, index);
+                }
+            }
+        }
+    };
+
+    const handleTouchEnd = () => {
+        handleDragEnd();
     };
 
     const removeBlock = (blockId: string) => {
@@ -1259,6 +1299,10 @@ export function CreatePlaylistBlocks({ mode }: CreatePlaylistBlocksProps) {
                                         onDragStart={(e) => handleDragStart(e, index)}
                                         onDragOver={(e) => handleDragOver(e, index)}
                                         onDragEnd={handleDragEnd}
+                                        onTouchStart={(e) => handleTouchStart(e, index)}
+                                        onTouchMove={(e) => handleTouchMove(e)}
+                                        onTouchEnd={handleTouchEnd}
+                                        data-draggable-index={index}
                                         onClick={() => block.type === 'podcast'
                                             ? handlePodcastClick(block.id)
                                             : block.type === 'latest-podcast'
@@ -1274,6 +1318,11 @@ export function CreatePlaylistBlocks({ mode }: CreatePlaylistBlocksProps) {
                                             transition: 'all 0.2s ease-in-out',
                                             borderRadius: 2,
                                             position: 'relative',
+                                            WebkitTapHighlightColor: 'transparent',
+                                            opacity: draggedItem === index ? 0.5 : 1,
+                                            transform: draggedItem === index ? 'scale(1.03)' : 'none',
+                                            boxShadow: draggedItem === index ? '0 10px 20px rgba(0,0,0,0.3)' : '0 6px 10px rgba(0, 0, 0, 0.3)',
+                                            zIndex: draggedItem === index ? 1000 : 1,
                                             '&:hover': {
                                                 bgcolor: '#3E3E3E',
                                                 transform: 'translateY(-4px)',
@@ -1281,12 +1330,12 @@ export function CreatePlaylistBlocks({ mode }: CreatePlaylistBlocksProps) {
                                             },
                                         }}
                                     >
-                                        {/* Top Left Drag Icon - Mobile Only */}
                                         <Box sx={{
                                             display: { xs: 'flex', sm: 'none' },
                                             position: 'absolute',
                                             top: 20,
                                             left: 2,
+                                            'data-drag-handle': 'true',
                                             color: '#B3B3B3',
                                             zIndex: 1,
                                             alignItems: 'center',
@@ -1297,7 +1346,6 @@ export function CreatePlaylistBlocks({ mode }: CreatePlaylistBlocksProps) {
                                             <DragIndicatorIcon />
                                         </Box>
 
-                                        {/* Top Right Delete Icon - Mobile Only */}
                                         <Box sx={{
                                             display: { xs: 'flex', sm: 'none' },
                                             position: 'absolute',
@@ -1325,7 +1373,6 @@ export function CreatePlaylistBlocks({ mode }: CreatePlaylistBlocksProps) {
                                         </Box>
 
                                         <Stack direction="row" alignItems="center" spacing={2}>
-                                            {/* Left Icons - Desktop Only */}
                                             <Box sx={{
                                                 display: { xs: 'none', sm: 'flex' },
                                                 alignItems: 'center',
@@ -1428,7 +1475,6 @@ export function CreatePlaylistBlocks({ mode }: CreatePlaylistBlocksProps) {
                                                 )}
                                             </Box>
 
-                                            {/* Delete Button - Desktop Only */}
                                             <IconButton
                                                 sx={{
                                                     display: { xs: 'none', sm: 'flex' },
@@ -1497,7 +1543,6 @@ export function CreatePlaylistBlocks({ mode }: CreatePlaylistBlocksProps) {
                 </Alert>
             </Snackbar>
 
-            {/* Podcast Episode Selection Dialog */}
             <Dialog
                 open={isPodcastDialogOpen}
                 onClose={() => setIsPodcastDialogOpen(false)}
@@ -1585,7 +1630,6 @@ export function CreatePlaylistBlocks({ mode }: CreatePlaylistBlocksProps) {
                 </DialogActions>
             </Dialog>
 
-            {/* Playlist Selection Dialog */}
             <Dialog
                 open={isPlaylistDialogOpen}
                 onClose={() => setIsPlaylistDialogOpen(false)}
@@ -1670,7 +1714,6 @@ export function CreatePlaylistBlocks({ mode }: CreatePlaylistBlocksProps) {
                 </DialogActions>
             </Dialog>
 
-            {/* Podcast Show Selection Dialog */}
             <Dialog
                 open={isShowDialogOpen}
                 onClose={() => setIsShowDialogOpen(false)}
