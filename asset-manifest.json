@@ -1,15 +1,15 @@
 {
   "files": {
     "main.css": "/BlockyList/static/css/main.20fa913b.css",
-    "main.js": "/BlockyList/static/js/main.5f62a044.js",
+    "main.js": "/BlockyList/static/js/main.98e5c41e.js",
     "static/js/453.b4402740.chunk.js": "/BlockyList/static/js/453.b4402740.chunk.js",
     "index.html": "/BlockyList/index.html",
     "main.20fa913b.css.map": "/BlockyList/static/css/main.20fa913b.css.map",
-    "main.5f62a044.js.map": "/BlockyList/static/js/main.5f62a044.js.map",
+    "main.98e5c41e.js.map": "/BlockyList/static/js/main.98e5c41e.js.map",
     "453.b4402740.chunk.js.map": "/BlockyList/static/js/453.b4402740.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.20fa913b.css",
-    "static/js/main.5f62a044.js"
+    "static/js/main.98e5c41e.js"
   ]
 }
